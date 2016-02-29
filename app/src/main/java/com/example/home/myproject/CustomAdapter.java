@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -52,6 +53,7 @@ public class CustomAdapter extends BaseAdapter
         TextView textViewName = (TextView) row.findViewById(R.id.textViewFileName);
         TextView textViewNum = (TextView) row.findViewById(R.id.textViewNumItems);
         TextView textViewDate = (TextView) row.findViewById(R.id.textViewDate);
+        CheckBox checkBox = (CheckBox) row.findViewById(R.id.checkBox);
 
         File currentFile = getItem(position);
         textViewName.setText(currentFile.getName());

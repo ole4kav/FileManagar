@@ -61,4 +61,20 @@
             android:id="@+id/textViewDate"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.1"
+        android:gravity="center_vertical">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkBox"
+            android:visibility="invisible"
+            android:focusableInTouchMode="false"
+            android:focusable="false"/>
+    </LinearLayout>
+
 </LinearLayout>

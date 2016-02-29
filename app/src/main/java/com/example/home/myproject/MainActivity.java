@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ public class MainActivity extends AppCompatActivity
     File sdDirectory;
     ArrayList<File> files = new ArrayList<>();
     CustomAdapter customAdapter;
+    ListView myListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,22 @@ public class MainActivity extends AppCompatActivity
         else {
             loadFiles();
         }
+        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "OnItemClickListener", Toast.LENGTH_LONG).show();
+
+            }
+        });
+        myListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
+        {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "OnItemLongClickListener", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
     }
 
     private void loadFiles() {
@@ -40,9 +60,8 @@ public class MainActivity extends AppCompatActivity
                 files.add(filenames);
             }
         }
-        
         customAdapter = new CustomAdapter(files, this);
-        ListView myListView = (ListView) findViewById(R.id.listView);
+        myListView = (ListView) findViewById(R.id.listView);
         myListView.setAdapter(customAdapter);
     }
 
