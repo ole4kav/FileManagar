@@ -1,6 +1,7 @@
 package com.example.home.myproject;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity
         else {
             loadFiles();
         }
+
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -40,19 +42,31 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
         myListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
         {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "OnItemLongClickListener", Toast.LENGTH_LONG).show();
+
+                File filePosition = files.get(position);
+
+                Intent intent = new Intent(MainActivity.this, PropertyActivity.class);
+                intent.putExtra("FolderName", filePosition.getName());
+                intent.putExtra("FoldersNum",filePosition.listFiles().length);
+                intent.putExtra("FolderSize",filePosition.getTotalSpace());
+
+                startActivity(intent);
+
                 return false;
             }
         });
     }
 
+
     private void loadFiles() {
         sdDirectory = Environment.getExternalStorageDirectory();
         String [] names = sdDirectory.list();
+        /*
         if (names!=null){
             for (int i = 0; i <names.length ; i++) {
                 String path = sdDirectory.getPath();
@@ -60,6 +74,15 @@ public class MainActivity extends AppCompatActivity
                 files.add(filenames);
             }
         }
+        */
+        if (names!=null){
+            for (String filename : names) {
+                String path = sdDirectory.getPath();
+                File filenames = new File(path, filename);
+                files.add(filenames);
+            }
+        }
+        
         customAdapter = new CustomAdapter(files, this);
         myListView = (ListView) findViewById(R.id.listView);
         myListView.setAdapter(customAdapter);
@@ -73,5 +96,23 @@ public class MainActivity extends AppCompatActivity
                 loadFiles();
             }
         }
+    }
+
+    public void chooseItemBtnClick(View view) {
+
+        customAdapter.setCheckBoxVisibility();
+        customAdapter.notifyDataSetChanged();
+
+        for (int i = 0; i <files.size() ; i++) {
+            customAdapter.isCheckBoxChecked[i] = false;
+        }
+    }
+
+    public void deleteItemBtnClick(View view) {
+        Toast.makeText(getApplicationContext(), "DELETE", Toast.LENGTH_LONG).show();
+    }
+
+    public void zipItemBtnClick(View view) {
+        Toast.makeText(getApplicationContext(), "ZIP", Toast.LENGTH_LONG).show();
     }
 }
