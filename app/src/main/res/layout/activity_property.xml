@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Num of files and folders"
+            android:visibility="invisible"
             android:id="@+id/textViewFolderLengthTitle"/>
 
     </LinearLayout>

@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity
     ArrayList<File> files = new ArrayList<>();
     CustomAdapter customAdapter;
     ListView myListView;
+    int fileCount;
+    int folderCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,32 +51,60 @@ public class MainActivity extends AppCompatActivity
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 File filePosition = files.get(position);
-
                 Intent intent = new Intent(MainActivity.this, PropertyActivity.class);
                 intent.putExtra("FolderName", filePosition.getName());
-                intent.putExtra("FoldersNum",filePosition.listFiles().length);
-                intent.putExtra("FolderSize",filePosition.getTotalSpace());
+                intent.putExtra("FolderSize", filePosition.length()); //getTotalSpace());
 
+                if (filePosition.isDirectory()){
+                    long lengthfolder = folderSize(filePosition);
+                    intent.putExtra("FolderSize", lengthfolder);
+
+                    folderType(filePosition);
+                    intent.putExtra("FoldersNum", folderCount);
+                    intent.putExtra("FilesNum", fileCount);
+                }
                 startActivity(intent);
-
                 return false;
             }
         });
     }
 
+    public long folderSize(File directory) {
+        long length = directory.length();
+        for (File file : directory.listFiles()) {
+            if (file.isFile()) {
+                length += file.length();
+            }
+            else {
+                length += folderSize(file);
+            }
+        }
+        return length;
+    }
+
+    public void folderType(File directory) {
+        fileCount=0;
+        folderCount=0;
+        for (File file : directory.listFiles()) {
+            if (file.isFile()) {
+                fileCount += 1;
+            }
+            else {
+                folderCount += 1;
+            }
+        }
+    }
 
     private void loadFiles() {
         sdDirectory = Environment.getExternalStorageDirectory();
         String [] names = sdDirectory.list();
-        /*
-        if (names!=null){
+        /*if (names!=null){
             for (int i = 0; i <names.length ; i++) {
                 String path = sdDirectory.getPath();
                 File filenames = new File(path, names[i]);
-                files.add(filenames);
-            }
-        }
-        */
+                files.add(filenames);}
+        }*/
+
         if (names!=null){
             for (String filename : names) {
                 String path = sdDirectory.getPath();
@@ -109,7 +139,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void deleteItemBtnClick(View view) {
-        Toast.makeText(getApplicationContext(), "DELETE", Toast.LENGTH_LONG).show();
+
+        for (int i = 0; i <files.size() ; i++) {
+            if (customAdapter.isCheckBoxChecked[i]) {
+                if (files.get(i).isFile()){
+                    files.get(i).delete();
+                }
+                else {
+                    String[] children = files.get(i).list();
+                    for (String thischildren : children) {
+                        new File(files.get(i), thischildren).delete();
+                    }
+                    /*for (int j = 0; j < children.length; j++) {
+                        new File(files.get(i), children[j]).delete();
+                    }*/
+                    
+                    if( files.get(i).listFiles().length==0){
+                       files.get(i).delete();
+                   }
+                }
+            }
+        }
+        //customAdapter.notifyDataSetChanged();
+        Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+        finish();
+        startActivity(getIntent());
     }
 
     public void zipItemBtnClick(View view) {
