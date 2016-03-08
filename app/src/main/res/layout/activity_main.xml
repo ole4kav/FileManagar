@@ -7,10 +7,26 @@
     android:orientation="vertical"
     tools:context="com.example.home.myproject.MainActivity">
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/textView"
+            android:background="#0000FF"
+            android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.9"
+        android:layout_weight="0.8"
         android:id="@+id/listView"/>
 
     <LinearLayout
@@ -33,6 +49,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="right">
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonSearch"
+                android:text="SEARCH"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/search"
+                android:layout_gravity="center"
+                android:onClick="searchItemBtnClick"/>
 
             <Button
                 android:layout_width="40dp"
