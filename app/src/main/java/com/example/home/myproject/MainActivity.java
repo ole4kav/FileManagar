@@ -14,7 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -24,6 +27,8 @@ public class MainActivity extends AppCompatActivity
 
     CustomAdapter customAdapter;
     ListView myListView;
+    File thisDirectory;
+
     int fileCount;
     int folderCount;
 
@@ -32,10 +37,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (PackageManager.PERMISSION_DENIED == ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-        }
-        else {
+        if (PackageManager.PERMISSION_DENIED == ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
             loadAndSaveToHist(Environment.getExternalStorageDirectory());
         }
 
@@ -61,7 +65,7 @@ public class MainActivity extends AppCompatActivity
                 intent.putExtra("FolderName", filePosition.getName());
                 intent.putExtra("FolderSize", filePosition.length()); //getTotalSpace());
 
-                if (filePosition.isDirectory()){
+                if (filePosition.isDirectory()) {
                     long lengthfolder = folderSize(filePosition);
                     intent.putExtra("FolderSize", lengthfolder);
 
@@ -80,8 +84,7 @@ public class MainActivity extends AppCompatActivity
         for (File file : directory.listFiles()) {
             if (file.isFile()) {
                 length += file.length();
-            }
-            else {
+            } else {
                 length += folderSize(file);
             }
         }
@@ -89,13 +92,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void folderType(File directory) {
-        fileCount=0;
-        folderCount=0;
+        fileCount = 0;
+        folderCount = 0;
         for (File file : directory.listFiles()) {
             if (file.isFile()) {
                 fileCount += 1;
-            }
-            else {
+            } else {
                 folderCount += 1;
             }
         }
@@ -103,16 +105,16 @@ public class MainActivity extends AppCompatActivity
 
     private void loadFiles(File currentDirectory) {
         files.clear();
-        String [] names = currentDirectory.list();
+        String[] names = currentDirectory.list();
         /*if (names!=null){
             for (int i = 0; i <names.length ; i++) {
                 String path = currentDirectory.getPath();
                 File filenames = new File(path, names[i]);
                 files.add(filenames);}
         }*/
-        String path = "";
+        String path;
 
-        if (names!=null){
+        if (names != null) {
             for (String filename : names) {
                 path = currentDirectory.getPath();
                 File filenames = new File(path, filename);
@@ -125,6 +127,8 @@ public class MainActivity extends AppCompatActivity
         customAdapter = new CustomAdapter(files, this);
         myListView = (ListView) findViewById(R.id.listView);
         myListView.setAdapter(customAdapter);
+
+        thisDirectory = currentDirectory;
     }
 
     private void loadAndSaveToHist(File currentDirectory) {
@@ -136,8 +140,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1){
-            if ((grantResults != null) && (grantResults.length>0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+        if (requestCode == 1) {
+            if ((grantResults != null) && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 loadAndSaveToHist(Environment.getExternalStorageDirectory());
             }
         }
@@ -148,18 +152,17 @@ public class MainActivity extends AppCompatActivity
         customAdapter.setCheckBoxVisibility();
         customAdapter.notifyDataSetChanged();
 
-        for (int i = 0; i <files.size() ; i++) {
+        for (int i = 0; i < files.size(); i++) {
             customAdapter.isCheckBoxChecked[i] = false;
         }
     }
 
     public void deleteItemBtnClick(View view) {
-        for (int i = 0; i <files.size() ; i++) {
+        for (int i = 0; i < files.size(); i++) {
             if (customAdapter.isCheckBoxChecked[i]) {
-                if (files.get(i).isFile()){
+                if (files.get(i).isFile()) {
                     files.get(i).delete();
-                }
-                else {
+                } else {
                     String[] children = files.get(i).list();
                     for (String thischildren : children) {
                         new File(files.get(i), thischildren).delete();
@@ -168,43 +171,68 @@ public class MainActivity extends AppCompatActivity
                         new File(files.get(i), children[j]).delete();
                     }*/
 
-                    if( files.get(i).listFiles().length==0){
-                       files.get(i).delete();
-                   }
+                    if (files.get(i).listFiles().length == 0) {
+                        files.get(i).delete();
+                    }
                 }
             }
         }
-
+        //files.remove(0);
         Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-        finish();
-        startActivity(getIntent());
+        loadFiles(thisDirectory);
+        customAdapter.notifyDataSetChanged();
+
     }
 
     public void zipItemBtnClick(View view) {
-        Toast.makeText(getApplicationContext(), "ZIP", Toast.LENGTH_LONG).show();
+
+        ArrayList<String> pathToZip = new ArrayList<>();
+
+        for (int i = 0; i < files.size(); i++) {
+            if (customAdapter.isCheckBoxChecked[i]) {
+                pathToZip.add(files.get(i).getPath());
+            }
+        }
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
+        Date date = new Date();
+        String nameToZipFile = sdf.format(date);
+
+        String[] stringPathToZip = new String[pathToZip.size()];
+        stringPathToZip = pathToZip.toArray(stringPathToZip);
+
+        if (pathToZip.size()>0) {
+            try {
+                Compress.zip(stringPathToZip, thisDirectory.toString()+"/"+nameToZipFile+"ZIP");
+                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_LONG).show();
+            }
+            loadFiles(thisDirectory);
+            customAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
-        if (pathToBack.size()>1){
-            int index = (pathToBack.size()-1);
+        if (pathToBack.size() > 1) {
+            int index = (pathToBack.size() - 1);
             pathToBack.remove(index);
 
-            int indexNew = (pathToBack.size()-1);
+            int indexNew = (pathToBack.size() - 1);
             File lastDir = new File(pathToBack.get(indexNew));
 
             loadFiles(lastDir);
-        }
-        else {
+        } else {
             this.finish();
         }
     }
 
     public void searchItemBtnClick(View view) {
-
         Intent intent = new Intent(MainActivity.this, SearchActivity.class);
         startActivity(intent);
-
     }
 }
