@@ -162,7 +162,8 @@ public class MainActivity extends AppCompatActivity
             if (customAdapter.isCheckBoxChecked[i]) {
                 if (files.get(i).isFile()) {
                     files.get(i).delete();
-                } else {
+                }
+                else {
                     String[] children = files.get(i).list();
                     for (String thischildren : children) {
                         new File(files.get(i), thischildren).delete();
@@ -181,30 +182,25 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
         loadFiles(thisDirectory);
         customAdapter.notifyDataSetChanged();
-
     }
 
     public void zipItemBtnClick(View view) {
-
         ArrayList<String> pathToZip = new ArrayList<>();
-
         for (int i = 0; i < files.size(); i++) {
             if (customAdapter.isCheckBoxChecked[i]) {
                 pathToZip.add(files.get(i).getPath());
             }
         }
 
-
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
-        Date date = new Date();
-        String nameToZipFile = sdf.format(date);
+        String nameToZipFile = sdf.format(new Date());
 
         String[] stringPathToZip = new String[pathToZip.size()];
         stringPathToZip = pathToZip.toArray(stringPathToZip);
 
         if (pathToZip.size()>0) {
             try {
-                Compress.zip(stringPathToZip, thisDirectory.toString()+"/"+nameToZipFile+"ZIP");
+                Compress.zip(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + "ZIP");
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
             }
             catch (IOException e) {
@@ -226,13 +222,37 @@ public class MainActivity extends AppCompatActivity
             File lastDir = new File(pathToBack.get(indexNew));
 
             loadFiles(lastDir);
-        } else {
+        }
+        else {
             this.finish();
         }
+    }
+
+    public void copyItemBtnClick(View view) {
+        String sdCard = thisDirectory.toString(); // sd card
+        for (int i = 0; i < files.size(); i++) {
+            if (customAdapter.isCheckBoxChecked[i]) {
+                String nameFile = files.get(i).getName();
+                File sourceLocation = new File(sdCard + "/" + nameFile);   //the file to be copied
+                File targetLocation = new File(sdCard + "/NewFolder/" + nameFile);  //target location
+
+                if(sourceLocation.exists()){        //make sure source exists
+                    try{
+                        Copy.copyFolder(sourceLocation,targetLocation);
+                    }
+                    catch(IOException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        loadFiles(thisDirectory);
+        customAdapter.notifyDataSetChanged();
     }
 
     public void searchItemBtnClick(View view) {
         Intent intent = new Intent(MainActivity.this, SearchActivity.class);
         startActivity(intent);
     }
+
 }

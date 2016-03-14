@@ -53,6 +53,16 @@
             <Button
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
+                android:id="@+id/buttonCopy"
+                android:text="COPY"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/copy"
+                android:layout_gravity="center"
+                android:onClick="copyItemBtnClick"/>
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
                 android:id="@+id/buttonSearch"
                 android:text="SEARCH"
                 android:textColor="@color/colorPrimaryDark"

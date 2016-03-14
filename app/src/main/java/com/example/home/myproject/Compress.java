@@ -14,14 +14,6 @@ import java.util.zip.ZipOutputStream;
 
 public class Compress {
     private static final int BUFFER_SIZE = 2048;
-    //private String[] filesPaths;
-    //private String zipFileName;
-
-    /*
-  public Compress(String[] filesPaths, String zipFileName) {
-      this.filesPaths = filesPaths;
-      this.zipFileName = zipFileName;
-  }*/
 
   public static void zip(String[] filesPaths, String zipFileName) throws IOException {
 
@@ -38,6 +30,7 @@ public class Compress {
               outputStream.putNextEntry(entry);
 
               int count;
+
               while ((count = origin.read(data, 0, BUFFER_SIZE)) != -1) {
                   outputStream.write(data, 0, count);
               }
