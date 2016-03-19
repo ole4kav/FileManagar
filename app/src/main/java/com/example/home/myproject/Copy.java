@@ -15,7 +15,7 @@ public class Copy
     public static void copyFolder(File src, File dest) throws IOException {
         if(src.isDirectory()){  //if directory not exists, create it
             if(!dest.exists()){
-                dest.mkdir();
+                dest.mkdirs();
             }
             String files[] = src.list(); //list all the directory contents
             for (String file : files) {
@@ -25,8 +25,13 @@ public class Copy
                 copyFolder(srcFile,destFile);   //recursive copy
             }
         }
-        else{  //if file, then copy it
-            //Use bytes stream to support all file types
+        else{       //if file, then copy it
+            //if directory not exists, create it
+            File parentDes = dest.getParentFile();
+            if (!parentDes.exists()){
+                parentDes.mkdirs();
+            }
+            ////Use bytes stream to support all file types
             InputStream in = new FileInputStream(src);
             OutputStream out = new FileOutputStream(dest);
 

@@ -136,7 +136,6 @@ public class MainActivity extends AppCompatActivity
         pathToBack.add(currentDirectory.getPath());
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity
 
         if (pathToZip.size()>0) {
             try {
-                Compress.zip(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + "ZIP");
+                Compress.zip(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + ".zip");
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
             }
             catch (IOException e) {
@@ -209,22 +208,6 @@ public class MainActivity extends AppCompatActivity
             }
             loadFiles(thisDirectory);
             customAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (pathToBack.size() > 1) {
-            int index = (pathToBack.size() - 1);
-            pathToBack.remove(index);
-
-            int indexNew = (pathToBack.size() - 1);
-            File lastDir = new File(pathToBack.get(indexNew));
-
-            loadFiles(lastDir);
-        }
-        else {
-            this.finish();
         }
     }
 
@@ -248,6 +231,22 @@ public class MainActivity extends AppCompatActivity
         }
         loadFiles(thisDirectory);
         customAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pathToBack.size() > 1) {
+            int index = (pathToBack.size() - 1);
+            pathToBack.remove(index);
+
+            int indexNew = (pathToBack.size() - 1);
+            File lastDir = new File(pathToBack.get(indexNew));
+
+            loadFiles(lastDir);
+        }
+        else {
+            this.finish();
+        }
     }
 
     public void searchItemBtnClick(View view) {
