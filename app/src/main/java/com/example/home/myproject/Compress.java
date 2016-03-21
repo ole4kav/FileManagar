@@ -22,7 +22,8 @@ public class Compress
                 addDirectory(zipOutputStream,file);
             }
             zipOutputStream.close();   //close the ZipOutputStream
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
