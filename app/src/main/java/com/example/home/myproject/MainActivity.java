@@ -21,7 +21,6 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
 {
-    //File sdDirectory;
     ArrayList<File> files = new ArrayList<>();
     ArrayList<String> pathToBack = new ArrayList<>();
 
@@ -136,16 +135,6 @@ public class MainActivity extends AppCompatActivity
         pathToBack.add(currentDirectory.getPath());
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if ((grantResults != null) && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                loadAndSaveToHist(Environment.getExternalStorageDirectory());
-            }
-        }
-    }
-
     public void chooseItemBtnClick(View view) {
 
         customAdapter.setCheckBoxVisibility();
@@ -156,41 +145,33 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void deleteItemBtnClick(View view) {
+    public ArrayList<String> chosesFiles (ArrayList<String> choosePaths){
         for (int i = 0; i < files.size(); i++) {
             if (customAdapter.isCheckBoxChecked[i]) {
-                if (files.get(i).isFile()) {
-                    files.get(i).delete();
-                }
-                else {
-                    String[] children = files.get(i).list();
-                    for (String thischildren : children) {
-                        new File(files.get(i), thischildren).delete();
-                    }
-                    /*for (int j = 0; j < children.length; j++) {
-                        new File(files.get(i), children[j]).delete();
-                    }*/
-
-                    if (files.get(i).listFiles().length == 0) {
-                        files.get(i).delete();
-                    }
-                }
+                choosePaths.add(files.get(i).getPath());
             }
         }
-        //files.remove(0);
-        Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-        loadFiles(thisDirectory);
-        customAdapter.notifyDataSetChanged();
+        return choosePaths;
+    }
+
+    public void deleteItemBtnClick(View view) {
+        ArrayList<String> pathToDelete = new ArrayList<>();
+        pathToDelete = chosesFiles(pathToDelete);
+        if (pathToDelete.size()>0) {
+            try {
+                Delete.deleteAllFolder(pathToDelete);
+                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            loadFiles(thisDirectory);
+            customAdapter.notifyDataSetChanged();
+        }
     }
 
     public void zipItemBtnClick(View view) {
         ArrayList<String> pathToZip = new ArrayList<>();
-        for (int i = 0; i < files.size(); i++) {
-            if (customAdapter.isCheckBoxChecked[i]) {
-                pathToZip.add(files.get(i).getPath());
-            }
-        }
-
+        pathToZip = chosesFiles (pathToZip);
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
         String nameToZipFile = sdf.format(new Date());
 
@@ -212,28 +193,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void copyItemBtnClick(View view) {
-        String sdCard = thisDirectory.toString(); // sd card
-        for (int i = 0; i < files.size(); i++) {
-            if (customAdapter.isCheckBoxChecked[i]) {
-                String nameFile = files.get(i).getName();
-                File sourceLocation = new File(sdCard + "/" + nameFile);   //the file to be copied
-                File targetLocation = new File(sdCard + "/NewFolder/" + nameFile);  //target location
+        ArrayList<String> pathToCopy = new ArrayList<>();
+        pathToCopy = chosesFiles(pathToCopy);
+        String sdCard = thisDirectory.toString();
 
-                if(sourceLocation.exists()){        //make sure source exists
-                    try{
-                        Copy.copyFolder(sourceLocation,targetLocation);
-                    }
-                    catch(IOException e){
-                        e.printStackTrace();
-                    }
-                }
+        if (pathToCopy.size()>0){
+            try {
+                Copy.copyAllFolder(pathToCopy, sdCard);
+                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
             }
+            catch  (IOException e) {
+                e.printStackTrace();
+            }
+            loadFiles(thisDirectory);
+            customAdapter.notifyDataSetChanged();
         }
-        loadFiles(thisDirectory);
-        customAdapter.notifyDataSetChanged();
     }
 
-    @Override
+   @Override
     public void onBackPressed() {
         if (pathToBack.size() > 1) {
             int index = (pathToBack.size() - 1);
@@ -249,9 +226,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if ((grantResults != null) && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                loadAndSaveToHist(Environment.getExternalStorageDirectory());
+            }
+        }
+    }
+
     public void searchItemBtnClick(View view) {
         Intent intent = new Intent(MainActivity.this, SearchActivity.class);
         startActivity(intent);
     }
-
 }
