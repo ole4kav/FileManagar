@@ -159,9 +159,10 @@ public class MainActivity extends AppCompatActivity
         pathToDelete = chosesFiles(pathToDelete);
         if (pathToDelete.size()>0) {
             try {
-                Delete.deleteAllFolder(pathToDelete);
+                Manager.delete(pathToDelete);
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
             loadFiles(thisDirectory);
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity
 
         if (pathToZip.size()>0) {
             try {
-                Compress.zip(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + ".zip");
+                Manager.zipCompress(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + ".zip");
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
             }
             catch (IOException e) {
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity
 
         if (pathToCopy.size()>0){
             try {
-                Copy.copyAllFolder(pathToCopy, sdCard);
+                Manager.copy(pathToCopy, sdCard);
                 Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
             }
             catch  (IOException e) {
