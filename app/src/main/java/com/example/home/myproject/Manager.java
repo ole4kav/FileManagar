@@ -36,8 +36,7 @@ public class Manager
                 addDirectory(zout, innerf);
             }
         }
-        else {
-            //we are here means, its file and not directory, so add it to the zip file
+        else {  //we are here means, its file and not directory, so add it to the zip file
             try {
                 byte[] buffer = new byte[1024]; //create byte buffer
                 FileInputStream fin = new FileInputStream(file);    //create object of FileInputStream
@@ -79,26 +78,22 @@ public class Manager
                 dest.mkdirs();
             }
             String files[] = src.list(); //list all the directory contents
-            for (String file : files) {
-                //construct the src and dest file structure
+            for (String file : files) { //construct the src and dest file structure
                 File srcFile = new File(src, file);
                 File destFile = new File(dest, file);
                 copyFolder(srcFile, destFile);   //recursive copy
             }
         }
         else {       //if file, then copy it
-            //if directory not exists, create it
             File parentDes = dest.getParentFile();
-            if (!parentDes.exists()) {
+            if (!parentDes.exists()) {  //if directory not exists, create it
                 parentDes.mkdirs();
             }
             ////Use bytes stream to support all file types
             InputStream in = new FileInputStream(src);
             OutputStream out = new FileOutputStream(dest);
-
             byte[] buffer = new byte[1024];
             int length;
-
             while ((length = in.read(buffer)) > 0) {
                 out.write(buffer, 0, length);
             }
@@ -116,8 +111,8 @@ public class Manager
             }
             else {
                 String[] children = deleteFile.list();
-                for (String thischildren : children) {
-                    new File(deleteFile, thischildren).delete();
+                for (String thisChildren : children) {
+                    new File(deleteFile, thisChildren).delete();
                 }
                 if (deleteFile.listFiles().length == 0) {
                     deleteFile.delete();
@@ -125,5 +120,4 @@ public class Manager
             }
         }
     }
-
 }

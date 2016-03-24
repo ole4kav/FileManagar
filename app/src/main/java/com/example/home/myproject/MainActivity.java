@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if (PackageManager.PERMISSION_DENIED == ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        } else {
+        }
+        else {
             loadAndSaveToHist(Environment.getExternalStorageDirectory());
         }
 
@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Toast.makeText(getApplicationContext(), "OnItemClickListener", Toast.LENGTH_LONG).show();
                 File dir = files.get(position);
                 if (dir.isDirectory()) {
                     loadAndSaveToHist(dir);
@@ -58,16 +57,13 @@ public class MainActivity extends AppCompatActivity
         {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
                 File filePosition = files.get(position);
                 Intent intent = new Intent(MainActivity.this, PropertyActivity.class);
                 intent.putExtra("FolderName", filePosition.getName());
                 intent.putExtra("FolderSize", filePosition.length()); //getTotalSpace());
-
                 if (filePosition.isDirectory()) {
                     long lengthfolder = folderSize(filePosition);
                     intent.putExtra("FolderSize", lengthfolder);
-
                     folderType(filePosition);
                     intent.putExtra("FoldersNum", folderCount);
                     intent.putExtra("FilesNum", fileCount);
@@ -83,7 +79,8 @@ public class MainActivity extends AppCompatActivity
         for (File file : directory.listFiles()) {
             if (file.isFile()) {
                 length += file.length();
-            } else {
+            }
+            else {
                 length += folderSize(file);
             }
         }
@@ -96,7 +93,8 @@ public class MainActivity extends AppCompatActivity
         for (File file : directory.listFiles()) {
             if (file.isFile()) {
                 fileCount += 1;
-            } else {
+            }
+            else {
                 folderCount += 1;
             }
         }
@@ -112,7 +110,6 @@ public class MainActivity extends AppCompatActivity
                 files.add(filenames);}
         }*/
         String path;
-
         if (names != null) {
             for (String filename : names) {
                 path = currentDirectory.getPath();
@@ -120,13 +117,10 @@ public class MainActivity extends AppCompatActivity
                 files.add(filenames);
             }
         }
-
         ((TextView) findViewById(R.id.textView)).setText(currentDirectory.getPath());
-
         customAdapter = new CustomAdapter(files, this);
         myListView = (ListView) findViewById(R.id.listView);
         myListView.setAdapter(customAdapter);
-
         thisDirectory = currentDirectory;
     }
 
@@ -136,10 +130,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void chooseItemBtnClick(View view) {
-
         customAdapter.setCheckBoxVisibility();
         customAdapter.notifyDataSetChanged();
-
         for (int i = 0; i < files.size(); i++) {
             customAdapter.isCheckBoxChecked[i] = false;
         }
@@ -175,10 +167,8 @@ public class MainActivity extends AppCompatActivity
         pathToZip = chosesFiles (pathToZip);
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
         String nameToZipFile = sdf.format(new Date());
-
         String[] stringPathToZip = new String[pathToZip.size()];
         stringPathToZip = pathToZip.toArray(stringPathToZip);
-
         if (pathToZip.size()>0) {
             try {
                 Manager.zipCompress(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + ".zip");
@@ -197,7 +187,6 @@ public class MainActivity extends AppCompatActivity
         ArrayList<String> pathToCopy = new ArrayList<>();
         pathToCopy = chosesFiles(pathToCopy);
         String sdCard = thisDirectory.toString();
-
         if (pathToCopy.size()>0){
             try {
                 Manager.copy(pathToCopy, sdCard);
@@ -216,10 +205,8 @@ public class MainActivity extends AppCompatActivity
         if (pathToBack.size() > 1) {
             int index = (pathToBack.size() - 1);
             pathToBack.remove(index);
-
             int indexNew = (pathToBack.size() - 1);
             File lastDir = new File(pathToBack.get(indexNew));
-
             loadFiles(lastDir);
         }
         else {
