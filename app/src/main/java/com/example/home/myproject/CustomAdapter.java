@@ -51,7 +51,7 @@ public class CustomAdapter extends BaseAdapter implements CompoundButton.OnCheck
         View row;
 
         if (convertView == null){
-            row = LayoutInflater.from(context).inflate(R.layout.row_custom, null);
+            row = LayoutInflater.from(context).inflate(R.layout.row_custom, parent, false);
             CheckBox checkBox = (CheckBox) row.findViewById(R.id.checkBox);
             checkBox.setOnCheckedChangeListener(this);
         }

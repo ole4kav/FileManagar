@@ -1,21 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.example.home.myproject.MainActivity">
 
-    <ListView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_weight="0.1">
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/textView"
+            android:background="#0000FF"
+            android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.8"
+        android:id="@+id/listView"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CHOOSE"
+            android:id="@+id/buttonChoose"
+            android:textColor="@color/colorPrimaryDark"
+            android:onClick="chooseItemBtnClick"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonCopy"
+                android:text="COPY"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/copy"
+                android:layout_gravity="center"
+                android:onClick="copyItemBtnClick"/>
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonSearch"
+                android:text="SEARCH"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/search"
+                android:layout_gravity="center"
+                android:onClick="searchItemBtnClick"/>
+
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonZip"
+                android:text="ZIP"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/zip"
+                android:layout_gravity="center"
+                android:onClick="zipItemBtnClick"/>
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:id="@+id/buttonDelete"
+                android:text="DELETE"
+                android:textColor="@color/colorPrimaryDark"
+                android:background="@drawable/recycle"
+                android:layout_gravity="center"
+                android:onClick="deleteItemBtnClick"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

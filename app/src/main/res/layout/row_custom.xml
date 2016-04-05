@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="60dp"
+    >
+
 
     <LinearLayout
         android:orientation="horizontal"
@@ -47,12 +49,6 @@
         android:layout_gravity="right"
         android:layout_weight="0.3"
         android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/textViewNull2"/>
 
         <TextView
             android:layout_width="wrap_content"
