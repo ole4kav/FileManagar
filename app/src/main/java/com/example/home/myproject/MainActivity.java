@@ -3,6 +3,7 @@ package com.example.home.myproject;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -31,9 +32,14 @@ public class MainActivity extends AppCompatActivity
     int fileCount;
     int folderCount;
 
+    static final String PATH_TO_BACK = "pathToBack";
+    static final String THIS_DIRECTORY ="thisDirectory";
+    static final String CHECKBOX_VISABILITY ="checkBoxVisability" ;
+    static final String IS_CHECKED ="isCheckBoxChecked" ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);     // Always call the superclass first
         setContentView(R.layout.activity_main);
         if (PackageManager.PERMISSION_DENIED == ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -72,6 +78,53 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putStringArrayList(PATH_TO_BACK, pathToBack);
+        savedInstanceState.putSerializable(THIS_DIRECTORY, thisDirectory);
+        savedInstanceState.putBoolean(CHECKBOX_VISABILITY, customAdapter.checkBoxVisibility);
+        savedInstanceState.putBooleanArray(IS_CHECKED, customAdapter.isCheckBoxChecked);
+
+        super.onSaveInstanceState(savedInstanceState);  // Always call the superclass so it can save the view hierarchy state
+    }
+
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);   // Always call the superclass so it can restore the view hierarchy
+
+        // Restore state members from saved instance
+        pathToBack = savedInstanceState.getStringArrayList(PATH_TO_BACK);
+        thisDirectory = (File) savedInstanceState.getSerializable(THIS_DIRECTORY);
+        loadFiles(thisDirectory);
+
+        customAdapter.checkBoxVisibility = savedInstanceState.getBoolean(CHECKBOX_VISABILITY);
+        customAdapter.isCheckBoxChecked = savedInstanceState.getBooleanArray(IS_CHECKED);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pathToBack.size() > 1) {
+            int index = (pathToBack.size() - 1);
+            pathToBack.remove(index);
+            int indexNew = (pathToBack.size() - 1);
+            File lastDir = new File(pathToBack.get(indexNew));
+            loadFiles(lastDir);
+        }
+        else {
+            this.finish();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if ((grantResults != null) && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                loadAndSaveToHist(Environment.getExternalStorageDirectory());
+            }
+        }
     }
 
     public long folderSize(File directory) {
@@ -150,79 +203,84 @@ public class MainActivity extends AppCompatActivity
         ArrayList<String> pathToDelete = new ArrayList<>();
         pathToDelete = chosesFiles(pathToDelete);
         if (pathToDelete.size()>0) {
-            try {
-                Manager.delete(pathToDelete);
-                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            loadFiles(thisDirectory);
-            customAdapter.notifyDataSetChanged();
+            new AsyncTask<ArrayList<String>, Void, Void>(){
+                @Override
+                protected Void doInBackground(ArrayList<String>... pathToDelete) {
+                    try {
+                        Manager.delete(pathToDelete[0]);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+                    loadFiles(thisDirectory);
+                    customAdapter.notifyDataSetChanged();
+                }
+            }.execute(pathToDelete);
         }
     }
 
     public void zipItemBtnClick(View view) {
         ArrayList<String> pathToZip = new ArrayList<>();
-        pathToZip = chosesFiles (pathToZip);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
-        String nameToZipFile = sdf.format(new Date());
+        pathToZip = chosesFiles(pathToZip);
         String[] stringPathToZip = new String[pathToZip.size()];
         stringPathToZip = pathToZip.toArray(stringPathToZip);
         if (pathToZip.size()>0) {
-            try {
-                Manager.zipCompress(stringPathToZip, thisDirectory.toString() + "/" + nameToZipFile + ".zip");
-                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_LONG).show();
-            }
-            loadFiles(thisDirectory);
-            customAdapter.notifyDataSetChanged();
+            new AsyncTask<String, Void, Void>(){
+                @Override
+                protected Void doInBackground(String... stringPathToZip) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy-HH:mm");
+                    String nameToZipFile = sdf.format(new Date());
+                    String zipFileName = thisDirectory.toString() + "/" + nameToZipFile + ".zip";
+                    try {
+                        Manager.zipCompress(stringPathToZip, zipFileName);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+                    loadFiles(thisDirectory);
+                    customAdapter.notifyDataSetChanged();
+                }
+            }.execute(stringPathToZip);
         }
     }
 
     public void copyItemBtnClick(View view) {
         ArrayList<String> pathToCopy = new ArrayList<>();
         pathToCopy = chosesFiles(pathToCopy);
-        String sdCard = thisDirectory.toString();
         if (pathToCopy.size()>0){
-            try {
-                Manager.copy(pathToCopy, sdCard);
-                Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
-            }
-            catch  (IOException e) {
-                e.printStackTrace();
-            }
-            loadFiles(thisDirectory);
-            customAdapter.notifyDataSetChanged();
+            new AsyncTask<ArrayList<String>, Void, Void>() {
+                @Override
+                protected Void doInBackground(ArrayList<String>... pathToCopy) {
+                    String sdCard = thisDirectory.toString();
+                    try {
+                        Manager.copy(pathToCopy[0], sdCard);
+                    }
+                    catch  (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    Toast.makeText(getApplicationContext(), "DONE", Toast.LENGTH_LONG).show();
+                    loadFiles(thisDirectory);
+                    customAdapter.notifyDataSetChanged();
+                }
+            }.execute(pathToCopy);
         }
     }
 
-   @Override
-    public void onBackPressed() {
-        if (pathToBack.size() > 1) {
-            int index = (pathToBack.size() - 1);
-            pathToBack.remove(index);
-            int indexNew = (pathToBack.size() - 1);
-            File lastDir = new File(pathToBack.get(indexNew));
-            loadFiles(lastDir);
-        }
-        else {
-            this.finish();
-        }
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if ((grantResults != null) && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                loadAndSaveToHist(Environment.getExternalStorageDirectory());
-            }
-        }
-    }
 
     public void searchItemBtnClick(View view) {
         Intent intent = new Intent(MainActivity.this, SearchActivity.class);

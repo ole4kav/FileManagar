@@ -24,7 +24,7 @@ public class CustomAdapter extends BaseAdapter implements CompoundButton.OnCheck
     ArrayList<File> files;
     Context context;
     boolean[] isCheckBoxChecked;
-    private boolean checkBoxVisibility = false;
+    public boolean checkBoxVisibility = false;
 
     //
     long space;
